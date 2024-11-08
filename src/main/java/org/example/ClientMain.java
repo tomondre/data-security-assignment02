@@ -1,19 +1,19 @@
 package org.example;
 
-import org.example.client.ModelManager;
+import org.example.client.Client;
 import org.example.common.RemoteLogin;
 
 import java.io.IOException;
 import java.util.Scanner;
 
 
-public class ClientTest {
+public class ClientMain {
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
         RemoteLogin model = null;
         try {
-            model = new ModelManager();
+            model = new Client();
         } catch (IOException e) {
             e.printStackTrace();
         }

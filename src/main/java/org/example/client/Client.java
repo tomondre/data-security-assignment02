@@ -2,16 +2,17 @@ package org.example.client;
 
 
 import org.example.common.RemoteLogin;
+import org.example.common.Session;
 
 import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 
-public class ModelManager implements RemoteLogin {
+public class Client implements RemoteLogin {
 
     private RemoteLogin server;
 
-    public ModelManager() throws IOException {
+    public Client() throws IOException {
         try {
             server = (RemoteLogin) Naming.lookup("rmi://localhost:1099/Login");
         } catch (Exception e) {
@@ -19,8 +20,8 @@ public class ModelManager implements RemoteLogin {
         }
     }
 
-    @Override public void login(String userName, String password) throws RemoteException {
-        server.login(userName, password);
+    @Override public Session login(String userName, String password) throws RemoteException {
+        return server.login(userName, password);
     }
 
     @Override

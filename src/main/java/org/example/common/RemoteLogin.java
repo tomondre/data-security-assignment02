@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteLogin extends Remote {
-    void login(String username, String password) throws RemoteException;
+    Session login(String username, String password) throws RemoteException;
     void print(String filename, String printer) throws RemoteException;
     void queue(String printer) throws RemoteException;
     void topQueue(String printer, int job) throws RemoteException;
