@@ -1,8 +1,8 @@
 package org.example.common;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
+import java.io.Serializable;
 
-public class Session {
+public class Session implements Serializable {
     private String jwt;
 
     public Session(String jwt) {

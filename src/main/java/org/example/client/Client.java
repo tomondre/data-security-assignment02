@@ -11,6 +11,7 @@ import java.rmi.RemoteException;
 public class Client implements RemoteLogin {
 
     private RemoteLogin server;
+    private Session storedSession;
 
     public Client() throws IOException {
         try {
@@ -21,7 +22,8 @@ public class Client implements RemoteLogin {
     }
 
     @Override public Session login(String userName, String password) throws RemoteException {
-        return server.login(userName, password);
+        storedSession = server.login(userName, password);
+        return storedSession;
     }
 
     @Override
