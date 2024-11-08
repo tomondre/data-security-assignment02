@@ -1,4 +1,4 @@
-package server.model;
+package org.example.server.model;
 
 public class Password {
 

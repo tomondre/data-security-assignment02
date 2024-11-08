@@ -1,7 +1,9 @@
-package server.mediator;
+package org.example.server;
 
-import common.RemoteLogin;
-import server.model.Model;
+
+import org.example.common.RemoteLogin;
+import org.example.server.model.Model;
+
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;

@@ -1,16 +1,19 @@
-package client.model;
+package org.example.client;
+
+
+import org.example.common.RemoteLogin;
 
 import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 
-public class ModelManager implements common.RemoteLogin {
+public class ModelManager implements RemoteLogin {
 
-    private common.RemoteLogin server;
+    private RemoteLogin server;
 
     public ModelManager() throws IOException {
         try {
-            server = (common.RemoteLogin) Naming.lookup("rmi://localhost:1099/Login");
+            server = (RemoteLogin) Naming.lookup("rmi://localhost:1099/Login");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

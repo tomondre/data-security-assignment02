@@ -1,4 +1,4 @@
-package server.model;
+package org.example.server.model;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;

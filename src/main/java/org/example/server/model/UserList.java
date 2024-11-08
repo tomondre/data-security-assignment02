@@ -1,5 +1,4 @@
-package server.model;
-
+package org.example.server.model;
 import java.util.ArrayList;
 
 public class UserList {

@@ -22,7 +22,7 @@ This guide will help you compile and run both the server and client components f
    Use the following command to compile the server code:
 
    ```sh
-   javac UserServerTest.java
+   javac gradle.src.main.java.org.example.UserServerTest.java
    ```
 
 2. **Run the Server**
@@ -30,7 +30,7 @@ This guide will help you compile and run both the server and client components f
    After compiling, start the server with the command below:
 
    ```sh
-   java UserServerTest
+   java gradle.src.main.java.org.example.UserServerTest
    ```
 
    > **Note**: Ensure that the server is running before attempting to connect with the client.
@@ -42,7 +42,7 @@ This guide will help you compile and run both the server and client components f
    Use the following command to compile the client code:
 
    ```sh
-   javac ClientTest.java
+   javac gradle.src.main.java.org.example.ClientTest.java
    ```
 
 2. **Run the Client**
@@ -50,5 +50,5 @@ This guide will help you compile and run both the server and client components f
    With the server running, you can start the client by executing:
 
    ```sh
-   java ClientTest
+   java gradle.src.main.java.org.example.ClientTest
    ```
