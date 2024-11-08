@@ -26,4 +26,49 @@ public class UserServer implements RemoteLogin {
     public void login(String username, String password) {
         model.addUser(username, password);
     }
+
+    @Override
+    public void print(String filename, String printer) {
+        System.out.println("Printing " + filename + " to " + printer);
+    }
+
+    @Override
+    public void queue(String printer) {
+        System.out.println("Queueing " + printer);
+    }
+
+    @Override
+    public void topQueue(String printer, int job) {
+        System.out.println("Top queue " + printer + " " + job);
+    }
+
+    @Override
+    public void start() {
+        System.out.println("Server started.");
+    }
+
+    @Override
+    public void stop() {
+        System.out.println("Server stopped.");
+    }
+
+    @Override
+    public void restart() {
+        System.out.println("Server restarted.");
+    }
+
+    @Override
+    public void status(String printer) {
+        System.out.println("Printing " + printer);
+    }
+
+    @Override
+    public void readConfig(String parameter) {
+        System.out.println("Reading config file " + parameter);
+    }
+
+    @Override
+    public void setConfig(String parameter, String value) {
+        System.out.println("Setting config " + parameter + " to " + value);
+    }
 }

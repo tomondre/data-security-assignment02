@@ -5,20 +5,15 @@ This guide will help you compile and run both the server and client components f
 # Requirements
 * ~~The print server must support operations (print, queue, topQueue, start, restart, status, readConfig, setConfig), could print out the results to console log.~~
 * All requests form client to server MUST be authenticated
+* Implementation of simple session management mechanism for server requests
+   * Generate JWT token on login and return it
+   * In client use the jwt token for each request. Store the session/jwt in Java object
+   * Throw LoggedOutException from server in case the jwt is expired.
+* Implementation of secure communication
 
 # Delimitations
 * The server operations does't have to be implemented
 * Enrollment of users are not in the scope of the assignment, the users are already enrolled
-* Implementation of simple session management mechanism for server requests
-  * Generate JWT token on login and return it
-  * In client use the jwt token for each request. Store the session/jwt in Java object
-  * Throw LoggedOutException from server in case the jwt is expired.
-* Implementation of secure communication
-* The design must consider:
-   * Password storage
-   * Password transport
-   * Password verification
-   * Session management
 
 ## Server Setup
 
