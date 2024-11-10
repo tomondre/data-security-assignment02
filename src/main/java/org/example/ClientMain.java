@@ -1,19 +1,21 @@
 package org.example;
-
-import org.example.client.Client;
 import org.example.common.RemoteLogin;
+import org.example.common.Session;
 
 import java.io.IOException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.util.Scanner;
 
 
 public class ClientMain {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NotBoundException {
 
         Scanner input = new Scanner(System.in);
         RemoteLogin model = null;
+        Session session = null;
         try {
-            model = new Client();
+            model = (RemoteLogin) Naming.lookup("rmi://localhost:1099/Login");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -32,7 +34,7 @@ public class ClientMain {
                     password = input.nextLine();
                 } while (password == null || password.isEmpty());
 
-                model.login(username, password);
+                session = model.login(username, password);
                 break;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
