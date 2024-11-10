@@ -21,8 +21,8 @@ public class ClientMain {
         }
 
         tryStart(model, session);
-
         session = promptLogin(model, input);
+        tryStart(model, session);
     }
 
     public static void tryStart(RemoteLogin model, Session session) {
