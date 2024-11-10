@@ -18,10 +18,10 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
 
 public class Server implements RemoteLogin {
     private Model model;
-    private JWT jwt;
     private final RSAPrivateKey privateKey;
     private final RSAPublicKey publicKey;
 
@@ -44,52 +44,73 @@ public class Server implements RemoteLogin {
     public Session login(String username, String password) {
         model.addUser(username, password);
         Algorithm alg = Algorithm.RSA256(publicKey, privateKey);
-        String token = JWT.create().withIssuer("printer-server").sign(alg);
+        Date currentDate = new Date();
+
+        Date expiration = Date.from(currentDate.toInstant().plusSeconds(20));
+        String token = JWT.create().withIssuer("printer-server").withExpiresAt(expiration).sign(alg);
         return new Session(token);
     }
 
     @Override
-    public void print(String filename, String printer) {
+    public void print(String filename, String printer, Session session) {
+        checkLoggedIn(session);
         System.out.println("Printing " + filename + " to " + printer);
     }
 
     @Override
-    public void queue(String printer) {
+    public void queue(String printer, Session session) {
+        checkLoggedIn(session);
         System.out.println("Queueing " + printer);
     }
 
     @Override
-    public void topQueue(String printer, int job) {
+    public void topQueue(String printer, int job, Session session) {
+        checkLoggedIn(session);
         System.out.println("Top queue " + printer + " " + job);
     }
 
     @Override
-    public void start() {
+    public void start(Session session) {
+        checkLoggedIn(session);
         System.out.println("Server started.");
     }
 
     @Override
-    public void stop() {
+    public void stop(Session session) {
+        checkLoggedIn(session);
         System.out.println("Server stopped.");
     }
 
     @Override
-    public void restart() {
+    public void restart(Session session) {
+        checkLoggedIn(session);
         System.out.println("Server restarted.");
     }
 
     @Override
-    public void status(String printer) {
+    public void status(String printer, Session session) {
+        checkLoggedIn(session);
         System.out.println("Printing " + printer);
     }
 
     @Override
-    public void readConfig(String parameter) {
+    public void readConfig(String parameter, Session session) {
+        checkLoggedIn(session);
         System.out.println("Reading config file " + parameter);
     }
 
     @Override
-    public void setConfig(String parameter, String value) {
+    public void setConfig(String parameter, String value, Session session) {
+        checkLoggedIn(session);
         System.out.println("Setting config " + parameter + " to " + value);
+    }
+
+    private void checkLoggedIn(Session session) {
+        if (session == null) {
+            throw new IllegalStateException("Not logged in.");
+        }
+        if (session.getExpiration().before(new Date())) {
+            throw new IllegalStateException("Invalid session.");
+        }
     }
 }

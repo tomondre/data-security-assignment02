@@ -20,6 +20,21 @@ public class ClientMain {
             e.printStackTrace();
         }
 
+        tryStart(model, session);
+
+        session = promptLogin(model, input);
+    }
+
+    public static void tryStart(RemoteLogin model, Session session) {
+        try {
+            model.start(session);
+            System.out.println("Server started successfully");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static Session promptLogin(RemoteLogin model, Scanner input) {
         while (true) {
             try {
                 String username;
@@ -34,8 +49,7 @@ public class ClientMain {
                     password = input.nextLine();
                 } while (password == null || password.isEmpty());
 
-                session = model.login(username, password);
-                break;
+                return model.login(username, password);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
