@@ -10,7 +10,6 @@ import java.util.List;
 public class Session implements Serializable {
     private String value;
     private Date expiration;
-    private String[] scopes;
     private String username;
     private List<String> access;
 
@@ -28,7 +27,6 @@ public class Session implements Serializable {
         this.access = decoded.getClaim("access").asList(String.class);
         this.value = decoded.getToken();
         this.expiration = decoded.getExpiresAt();
-        this.scopes = decoded.getClaim("scopes").asArray(String.class);
         this.username = decoded.getClaim("username").asString();
     }
 
@@ -48,14 +46,6 @@ public class Session implements Serializable {
         this.expiration = expiration;
     }
 
-    public String[] getScopes() {
-        return scopes;
-    }
-
-    public void setScopes(String[] scopes) {
-        this.scopes = scopes;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -71,4 +61,14 @@ public class Session implements Serializable {
     public void setAccess(List<String> access) {
         this.access = access;
     }
+
+    public String toString() {
+        return "Session{" +
+                "access=" + access + '\'' +
+                ", expiration=" + expiration + '\'' +
+                ", username='" + username + '\'' +
+                ", value='" + value +
+                '}';
+    }
+
 }
