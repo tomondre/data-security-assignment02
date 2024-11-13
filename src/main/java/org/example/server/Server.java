@@ -12,8 +12,9 @@ import org.example.common.exceptions.InvalidJwtException;
 import org.example.common.exceptions.LoggedOutException;
 import org.example.common.exceptions.SessionNotPresentException;
 import org.example.common.exceptions.UnauthorisedException;
-import org.example.server.model.ACL;
-import org.example.server.model.AclOperation;
+import org.example.server.authorization.Operation;
+import org.example.server.authorization.AclStrategy;
+import org.example.server.authorization.AuthorizationStrategy;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -33,7 +34,7 @@ public class Server implements RemoteLogin {
     private final RSAPublicKey publicKey;
     private final JWTVerifier verifier;
     private final Algorithm alg;
-    private final ACL acl = new ACL();
+    private final AuthorizationStrategy authorization = new AclStrategy();
 
     public Server() throws RemoteException, MalformedURLException, NoSuchAlgorithmException {
         System.setProperty("java.rmi.server.hostname", "localhost");
@@ -62,62 +63,62 @@ public class Server implements RemoteLogin {
                 .withIssuer("printer-server")
                 .withExpiresAt(expiration)
                 .withClaim("username", username)
-                .withClaim("access", acl.getRights(username))
+                .withClaim("access", authorization.getAccess(username))
                 .sign(alg);
         return new Session(token);
     }
 
     @Override
     public void print(String filename, String printer, Session session) throws Exception {
-        performAuthorization(session, AclOperation.PRINT);
+        performAuthorization(session, Operation.PRINT);
         System.out.println("Printing " + filename + " to " + printer);
     }
 
     @Override
     public void queue(String printer, Session session) throws Exception {
-        performAuthorization(session, AclOperation.QUEUE);
+        performAuthorization(session, Operation.QUEUE);
         System.out.println("Queueing " + printer);
     }
 
     @Override
     public void topQueue(String printer, int job, Session session) throws Exception {
-        performAuthorization(session, AclOperation.TOP_QUEUE);
+        performAuthorization(session, Operation.TOP_QUEUE);
         System.out.println("Top queue " + printer + " " + job);
     }
 
     @Override
     public void start(Session session) throws Exception {
-        performAuthorization(session, AclOperation.START);
+        performAuthorization(session, Operation.START);
         System.out.println("Server started.");
     }
 
     @Override
     public void stop(Session session) throws Exception {
-        performAuthorization(session, AclOperation.STOP);
+        performAuthorization(session, Operation.STOP);
         System.out.println("Server stopped.");
     }
 
     @Override
     public void restart(Session session) throws Exception {
-        performAuthorization(session, AclOperation.RESTART);
+        performAuthorization(session, Operation.RESTART);
         System.out.println("Server restarted.");
     }
 
     @Override
     public void status(String printer, Session session) throws Exception {
-        performAuthorization(session, AclOperation.STATUS);
+        performAuthorization(session, Operation.STATUS);
         System.out.println("Printing " + printer);
     }
 
     @Override
     public void readConfig(String parameter, Session session) throws Exception {
-        performAuthorization(session, AclOperation.READ_CONFIG);
+        performAuthorization(session, Operation.READ_CONFIG);
         System.out.println("Reading config file " + parameter);
     }
 
     @Override
     public void setConfig(String parameter, String value, Session session) throws Exception {
-        performAuthorization(session, AclOperation.SET_CONFIG);
+        performAuthorization(session, Operation.SET_CONFIG);
         System.out.println("Setting config " + parameter + " to " + value);
     }
 

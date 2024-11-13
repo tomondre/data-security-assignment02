@@ -1,6 +1,6 @@
-package org.example.server.model;
+package org.example.server.authorization;
 
-public final class AclOperation {
+public final class Operation {
     public static final String PRINT = "print";
     public static final String QUEUE = "queue";
     public static final String TOP_QUEUE = "topQueue";
