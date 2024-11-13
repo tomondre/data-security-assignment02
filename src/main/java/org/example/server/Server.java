@@ -14,7 +14,6 @@ import org.example.common.exceptions.SessionNotPresentException;
 import org.example.common.exceptions.UnauthorisedException;
 import org.example.server.model.ACL;
 import org.example.server.model.AclOperation;
-import org.example.server.model.Model;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -30,15 +29,13 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 
 public class Server implements RemoteLogin {
-    private Model model;
     private final RSAPrivateKey privateKey;
     private final RSAPublicKey publicKey;
     private final JWTVerifier verifier;
     private final Algorithm alg;
     private final ACL acl = new ACL();
 
-    public Server(Model model) throws RemoteException, MalformedURLException, NoSuchAlgorithmException {
-        this.model = model;
+    public Server() throws RemoteException, MalformedURLException, NoSuchAlgorithmException {
         System.setProperty("java.rmi.server.hostname", "localhost");
         Registry reg = LocateRegistry.createRegistry(1099);
         UnicastRemoteObject.exportObject(this, 0);
