@@ -2,16 +2,17 @@ package org.example.common;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.example.server.model.MyDate;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class Session implements Serializable {
     private String value;
     private Date expiration;
     private String[] scopes;
     private String username;
+    private List<String> aclMap;
 
     public Session(String jwt) {
         DecodedJWT decoded = JWT.decode(jwt);
@@ -24,6 +25,7 @@ public class Session implements Serializable {
     }
 
     private void parseJwt(DecodedJWT decoded) {
+        aclMap = decoded.getClaim("access").asList(String.class);
         this.value = decoded.getToken();
         this.expiration = decoded.getExpiresAt();
         this.scopes = decoded.getClaim("scopes").asArray(String.class);
@@ -60,5 +62,13 @@ public class Session implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public List<String> getAclMap() {
+        return aclMap;
+    }
+
+    public void setAclMap(List<String> aclMap) {
+        this.aclMap = aclMap;
     }
 }

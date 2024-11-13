@@ -11,6 +11,9 @@ import org.example.common.Session;
 import org.example.common.exceptions.InvalidJwtException;
 import org.example.common.exceptions.LoggedOutException;
 import org.example.common.exceptions.SessionNotPresentException;
+import org.example.common.exceptions.UnauthorisedException;
+import org.example.server.model.ACL;
+import org.example.server.model.AclOperation;
 import org.example.server.model.Model;
 
 import java.net.MalformedURLException;
@@ -32,6 +35,7 @@ public class Server implements RemoteLogin {
     private final RSAPublicKey publicKey;
     private final JWTVerifier verifier;
     private final Algorithm alg;
+    private final ACL acl = new ACL();
 
     public Server(Model model) throws RemoteException, MalformedURLException, NoSuchAlgorithmException {
         this.model = model;
@@ -52,73 +56,75 @@ public class Server implements RemoteLogin {
 
     @Override
     public Session login(String username, String password) {
-        model.addUser(username, password);
         Date currentDate = new Date();
 
-        Date expiration = Date.from(currentDate.toInstant().plusSeconds(20));
+//        TODO Set correct expiration. Maybe we can create a case from the client for this?
+//        Date expiration = Date.from(currentDate.toInstant().plusSeconds(20));
+        Date expiration = Date.from(currentDate.toInstant().plusSeconds(20000));
         String token = JWT.create()
                 .withIssuer("printer-server")
                 .withExpiresAt(expiration)
                 .withClaim("username", username)
+                .withClaim("access", acl.getRights(username))
                 .sign(alg);
         return new Session(token);
     }
 
     @Override
     public void print(String filename, String printer, Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.PRINT);
         System.out.println("Printing " + filename + " to " + printer);
     }
 
     @Override
     public void queue(String printer, Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.QUEUE);
         System.out.println("Queueing " + printer);
     }
 
     @Override
     public void topQueue(String printer, int job, Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.TOP_QUEUE);
         System.out.println("Top queue " + printer + " " + job);
     }
 
     @Override
     public void start(Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.START);
         System.out.println("Server started.");
     }
 
     @Override
     public void stop(Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.STOP);
         System.out.println("Server stopped.");
     }
 
     @Override
     public void restart(Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.RESTART);
         System.out.println("Server restarted.");
     }
 
     @Override
     public void status(String printer, Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.STATUS);
         System.out.println("Printing " + printer);
     }
 
     @Override
     public void readConfig(String parameter, Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.READ_CONFIG);
         System.out.println("Reading config file " + parameter);
     }
 
     @Override
     public void setConfig(String parameter, String value, Session session) throws Exception {
-        checkLoggedIn(session);
+        performAuthorization(session, AclOperation.SET_CONFIG);
         System.out.println("Setting config " + parameter + " to " + value);
     }
 
-    private void checkLoggedIn(Session session) throws Exception {
+    private void performAuthorization(Session session, String operation) throws Exception {
         if (session == null) {
             System.out.println("Checking logged failed: Session not present");
             throw new SessionNotPresentException();
@@ -133,6 +139,9 @@ public class Server implements RemoteLogin {
         if (session.getExpiration().before(new Date())) {
             System.out.println("Checking logged failed: Session expired for " + session.getUsername());
             throw new LoggedOutException(session.getUsername());
+        } if (!session.getAclMap().contains(operation)) {
+            System.out.println("Checking logged failed: No permission for " + session.getUsername());
+            throw new UnauthorisedException(session.getUsername());
         }
     }
 }

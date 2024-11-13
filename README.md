@@ -9,8 +9,9 @@ This guide will help you compile and run both the server and client components f
    * ~~Generate JWT token on login and return it~~
    * ~~In client use the jwt token for each request. Store the session/jwt in Java object~~
    * ~~Throw LoggedOutException from server in case the jwt is expired.~~
-* Add neccessary design roles for the server
+* Add necessary design roles for the server
 * Implement Access Control list and define necessary roles for each person based on the assginemnt
+* Salting password
 * ...
 * ?Implementation of secure communication
 
