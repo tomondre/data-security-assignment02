@@ -136,7 +136,7 @@ public class Server implements RemoteLogin {
         if (session.getExpiration().before(new Date())) {
             System.out.println("Checking logged failed: Session expired for " + session.getUsername());
             throw new LoggedOutException(session.getUsername());
-        } if (!session.getAclMap().contains(operation)) {
+        } if (!session.getAccess().contains(operation)) {
             System.out.println("Checking logged failed: No permission for " + session.getUsername());
             throw new UnauthorisedException(session.getUsername());
         }

@@ -12,7 +12,7 @@ public class Session implements Serializable {
     private Date expiration;
     private String[] scopes;
     private String username;
-    private List<String> aclMap;
+    private List<String> access;
 
     public Session(String jwt) {
         DecodedJWT decoded = JWT.decode(jwt);
@@ -25,7 +25,7 @@ public class Session implements Serializable {
     }
 
     private void parseJwt(DecodedJWT decoded) {
-        aclMap = decoded.getClaim("access").asList(String.class);
+        this.access = decoded.getClaim("access").asList(String.class);
         this.value = decoded.getToken();
         this.expiration = decoded.getExpiresAt();
         this.scopes = decoded.getClaim("scopes").asArray(String.class);
@@ -64,11 +64,11 @@ public class Session implements Serializable {
         this.username = username;
     }
 
-    public List<String> getAclMap() {
-        return aclMap;
+    public List<String> getAccess() {
+        return access;
     }
 
-    public void setAclMap(List<String> aclMap) {
-        this.aclMap = aclMap;
+    public void setAccess(List<String> access) {
+        this.access = access;
     }
 }
