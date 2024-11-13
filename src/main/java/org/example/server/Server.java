@@ -11,6 +11,7 @@ import org.example.common.exceptions.*;
 import org.example.server.authorization.Operation;
 import org.example.server.authorization.AclStrategy;
 import org.example.server.authorization.AuthorizationStrategy;
+import org.example.server.authorization.RoleBasedAccessControlAuthorizationStrategy;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -35,7 +36,7 @@ public class Server implements RemoteLogin {
     private final RSAPublicKey publicKey;
     private final JWTVerifier verifier;
     private final Algorithm alg;
-    private final AuthorizationStrategy authorization = new AclStrategy();
+    private final AuthorizationStrategy authorization = new RoleBasedAccessControlAuthorizationStrategy();
 
     public Server() throws RemoteException, MalformedURLException, NoSuchAlgorithmException {
         System.setProperty("java.rmi.server.hostname", "localhost");
