@@ -26,3 +26,14 @@ This guide will help you compile and run both the server and client components f
 ## Client Setup
 
 **Run the Client**
+
+Docker
+docker run --name my_postgres -e POSTGRES_USER=myuser -e POSTGRES_PASSWORD=mypassword -e POSTGRES_DB=printer_server -p 5432:5432 -d postgres:15
+
+Code to make table and in postgres:
+
+CREATE TABLE users (
+username VARCHAR(50) PRIMARY KEY,
+hashed_password VARCHAR(255) NOT NULL,
+salt VARCHAR(255) NOT NULL
+);

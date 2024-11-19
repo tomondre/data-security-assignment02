@@ -7,7 +7,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteLogin extends Remote {
-    Session login(String username, String password) throws Exception;
+    Session login(String username, String hashedPassword) throws RemoteException;
     void print(String filename, String printer, Session session) throws Exception;
     void queue(String printer, Session session) throws Exception;
     void topQueue(String printer, int job, Session session) throws Exception;
@@ -17,4 +17,6 @@ public interface RemoteLogin extends Remote {
     void status(String printer, Session session) throws Exception;
     void readConfig(String parameter, Session session) throws Exception;
     void setConfig(String parameter, String value, Session session) throws Exception;
+    void register(String username, String hashedPassword, String salt) throws RemoteException;
+    String requestSalt(String username) throws RemoteException;
 }
