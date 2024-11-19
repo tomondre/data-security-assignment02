@@ -1,6 +1,5 @@
 package org.example.server;
 
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -8,10 +7,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.example.common.RemoteLogin;
 import org.example.common.Session;
-import org.example.common.exceptions.InvalidJwtException;
-import org.example.common.exceptions.LoggedOutException;
-import org.example.common.exceptions.SessionNotPresentException;
-import org.example.common.exceptions.UnauthorisedException;
+import org.example.common.exceptions.*;
 import org.example.server.authorization.Operation;
 import org.example.server.authorization.AclStrategy;
 import org.example.server.authorization.AuthorizationStrategy;
@@ -22,14 +18,19 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.sql.*;
 import java.util.Date;
 
 public class Server implements RemoteLogin {
+
+    // Database connection details
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/printer_server";
+    private static final String DB_USER = "myuser";
+    private static final String DB_PASSWORD = "mypassword";
+
     private final RSAPrivateKey privateKey;
     private final RSAPublicKey publicKey;
     private final JWTVerifier verifier;
@@ -52,20 +53,74 @@ public class Server implements RemoteLogin {
         verifier = JWT.require(alg).withIssuer("printer-server").build();
     }
 
-    @Override
-    public Session login(String username, String password) {
-        Date currentDate = new Date();
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+    }
 
-//        TODO Set correct expiration. Maybe we can create a case from the client for this?
-//        Date expiration = Date.from(currentDate.toInstant().plusSeconds(20));
-        Date expiration = Date.from(currentDate.toInstant().plusSeconds(20000));
-        String token = JWT.create()
-                .withIssuer("printer-server")
-                .withExpiresAt(expiration)
-                .withClaim("username", username)
-                .withClaim("access", authorization.getAccess(username))
-                .sign(alg);
-        return new Session(token);
+    @Override
+    public void register(String username, String hashedPassword, String salt) throws RemoteException {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)")) {
+            stmt.setString(1, username);
+            stmt.setString(2, hashedPassword);
+            stmt.setString(3, salt);
+            stmt.executeUpdate();
+            System.out.println("User " + username + " registered successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RemoteException("Error registering user: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String requestSalt(String username) throws RemoteException {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT salt FROM users WHERE username = ?")) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("salt");
+                } else {
+                    throw new RemoteException("User not found");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RemoteException("Error retrieving salt: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Session login(String username, String hashedPassword) throws RemoteException {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT hashed_password FROM users WHERE username = ?")) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String storedHashedPassword = rs.getString("hashed_password");
+                    if (hashedPassword.equals(storedHashedPassword)) {
+                        // Proceed to create the JWT token
+                        Date currentDate = new Date();
+                        Date expiration = Date.from(currentDate.toInstant().plusSeconds(20000));
+                        String token = JWT.create()
+                                .withIssuer("printer-server")
+                                .withExpiresAt(expiration)
+                                .withClaim("username", username)
+                                .withClaim("access", authorization.getAccess(username))
+                                .sign(alg);
+                        return new Session(token);
+                    } else {
+                        throw new RemoteException("Invalid password");
+                    }
+                } else {
+                    throw new RemoteException("User not found");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RemoteException("Error during login: " + e.getMessage());
+        }
     }
 
     @Override
@@ -137,7 +192,8 @@ public class Server implements RemoteLogin {
         if (session.getExpiration().before(new Date())) {
             System.out.println("Checking logged failed: Session expired for " + session.getUsername());
             throw new LoggedOutException(session.getUsername());
-        } if (!session.getAccess().contains(operation)) {
+        }
+        if (!session.getAccess().contains(operation)) {
             System.out.println("Checking logged failed: No permission for " + session.getUsername());
             throw new UnauthorisedException(session.getUsername());
         }
