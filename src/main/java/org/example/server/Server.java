@@ -26,19 +26,18 @@ import java.sql.*;
 import java.util.Date;
 
 public class Server implements RemoteLogin {
-
-    // Database connection details
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/printer_server";
-    private static final String DB_USER = "myuser";
-    private static final String DB_PASSWORD = "mypassword";
-
     private final RSAPrivateKey privateKey;
     private final RSAPublicKey publicKey;
     private final JWTVerifier verifier;
     private final Algorithm alg;
-    private final AuthorizationStrategy authorization = new RoleBasedAccessControlAuthorizationStrategy();
+    private final AuthorizationStrategy authorization;
 
-    public Server() throws RemoteException, MalformedURLException, NoSuchAlgorithmException {
+    private final Connection connection;
+
+    public Server(AuthorizationStrategy authorizationStrategy, Connection connection) throws RemoteException, MalformedURLException, NoSuchAlgorithmException {
+        this.authorization = authorizationStrategy;
+        this.connection = connection;
+
         System.setProperty("java.rmi.server.hostname", "localhost");
         Registry reg = LocateRegistry.createRegistry(1099);
         UnicastRemoteObject.exportObject(this, 0);
@@ -53,22 +52,17 @@ public class Server implements RemoteLogin {
         alg = Algorithm.RSA256(publicKey, privateKey);
         verifier = JWT.require(alg).withIssuer("printer-server").build();
 
-        try (Connection conn = getConnection()) {
-            authorization.load(conn);
+        try {
+            authorization.load(connection);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RemoteException("Error bootstrapping database: " + e.getMessage());
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-    }
-
     @Override
     public void register(String username, String hashedPassword, String salt) throws RemoteException {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
+        try (PreparedStatement stmt = connection.prepareStatement(
                      "INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)")) {
             stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
@@ -83,8 +77,7 @@ public class Server implements RemoteLogin {
 
     @Override
     public String requestSalt(String username) throws RemoteException {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT salt FROM users WHERE username = ?")) {
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT salt FROM users WHERE username = ?")) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -101,8 +94,7 @@ public class Server implements RemoteLogin {
 
     @Override
     public Session login(String username, String hashedPassword) throws RemoteException {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT hashed_password FROM users WHERE username = ?")) {
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT hashed_password FROM users WHERE username = ?")) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -201,7 +193,7 @@ public class Server implements RemoteLogin {
             System.out.println("Checking logged failed: Session expired for " + session.getUsername());
             throw new LoggedOutException(session.getUsername());
         }
-        if (!session.getAccess().contains(operation)) {
+        if (this.authorization.checkAuthorization(session.getAccess(), operation)) {
             System.out.println("Checking logged failed: No permission for " + session.getUsername());
             throw new UnauthorisedException(session.getUsername());
         }

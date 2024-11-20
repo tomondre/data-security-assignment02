@@ -8,4 +8,5 @@ public interface AuthorizationStrategy {
     List<String> getAccess(String subject);
     void load(Connection conn) throws SQLException;
     void bootstrapDb(Connection conn) throws SQLException;
+    boolean checkAuthorization(List<String> access, String operation);
 }

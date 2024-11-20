@@ -63,4 +63,9 @@ public class AclStrategy implements AuthorizationStrategy {
             stmt.executeBatch(); // Execute batch insertion
         }
     }
+
+    @Override
+    public boolean checkAuthorization(List<String> access, String operation) {
+        return !access.contains(operation);
+    }
 }
