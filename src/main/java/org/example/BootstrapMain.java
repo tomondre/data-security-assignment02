@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.server.authorization.AclStrategy;
+
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,7 +29,7 @@ public class BootstrapMain {
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(
-                     "CREATE TABLE users (" +
+                     "CREATE TABLE IF NOT EXISTS users (" +
                              "id SERIAL PRIMARY KEY," +
                              "username VARCHAR(255) NOT NULL," +
                              "hashed_password VARCHAR(255) NOT NULL," +
@@ -39,6 +41,14 @@ public class BootstrapMain {
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RemoteException("Failed to create user table");
+        }
+        AclStrategy aclStrategy = new AclStrategy();
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            aclStrategy.bootstrapDb(conn);
+            System.out.println("ACL table created successfully");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RemoteException("Failed to create ACL table");
         }
     }
 }

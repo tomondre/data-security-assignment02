@@ -51,6 +51,13 @@ public class Server implements RemoteLogin {
         System.out.println("Public/private key pair generated.");
         alg = Algorithm.RSA256(publicKey, privateKey);
         verifier = JWT.require(alg).withIssuer("printer-server").build();
+
+        try (Connection conn = getConnection()) {
+            authorization.load(conn);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RemoteException("Error bootstrapping database: " + e.getMessage());
+        }
     }
 
     private Connection getConnection() throws SQLException {
