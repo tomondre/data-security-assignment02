@@ -24,6 +24,14 @@ public class ClientMain {
         while (true) {
             System.out.println("1. Register");
             System.out.println("2. Login");
+            System.out.println("3. Print");
+            System.out.println("4. Queue");
+            System.out.println("5. Top Queue");
+            System.out.println("6. Stop");
+            System.out.println("7. Restart");
+            System.out.println("8. Status");
+            System.out.println("9. Read Config");
+            System.out.println("10. Set Config");
             System.out.print("Select an option: ");
             String option = input.nextLine();
 
@@ -34,7 +42,24 @@ public class ClientMain {
                 if (session != null) {
                     tryStart(model, session);
                 }
-            } else {
+            } else if ("3".equals(option)) {
+                print(model, session);
+            } else if ("4".equals(option)) {
+                queue(model, session);
+            } else if ("5".equals(option)) {
+                topQueue(model, session);
+            } else if ("6".equals(option)) {
+                stop(model, session);
+            } else if ("7".equals(option)) {
+                restart(model, session);
+            } else if ("8".equals(option)) {
+                status(model, session);
+            } else if ("9".equals(option)) {
+                readConfig(model, session);
+            } else if ("10".equals(option)) {
+                setConfig(model, session);
+            }
+            else {
                 System.out.println("Invalid option");
             }
         }
@@ -101,6 +126,78 @@ public class ClientMain {
         try {
             model.start(session);
             System.out.println("Server started successfully");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void print(RemoteLogin model, Session session) {
+        try {
+            model.print("file.txt", "printer", session);
+            System.out.println("Printing successful");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void queue(RemoteLogin model, Session session) {
+        try {
+            model.queue("printer", session);
+            System.out.println("Queueing successful");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void topQueue(RemoteLogin model, Session session) {
+        try {
+            model.topQueue("printer", 1, session);
+            System.out.println("Top queue successful");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void stop(RemoteLogin model, Session session) {
+        try {
+            model.stop(session);
+            System.out.println("Server stopped successfully");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void restart(RemoteLogin model, Session session) {
+        try {
+            model.restart(session);
+            System.out.println("Server restarted successfully");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void status(RemoteLogin model, Session session) {
+        try {
+            model.status("printer", session);
+            System.out.println("Status successful");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void readConfig(RemoteLogin model, Session session) {
+        try {
+            model.readConfig("config", session);
+            System.out.println("Read config successful");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void setConfig(RemoteLogin model, Session session) {
+        try {
+            model.setConfig("config", "value", session);
+            System.out.println("Set config successful");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

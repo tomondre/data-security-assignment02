@@ -2,7 +2,9 @@ package org.example;
 
 
 import org.example.server.Server;
+import org.example.server.authorization.AclStrategy;
 import org.example.server.authorization.AuthorizationStrategy;
+import org.example.server.authorization.NoAuthorization;
 import org.example.server.authorization.RoleBasedAccessControlAuthorizationStrategy;
 
 import java.io.IOException;
@@ -15,8 +17,8 @@ public class ServerMain {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, SQLException {
         boolean bootstrap = true;
 
-        AuthorizationStrategy authorizationStrategy = new RoleBasedAccessControlAuthorizationStrategy();
-//        AuthorizationStrategy authorizationStrategy = new AclStrategy();
+//        AuthorizationStrategy authorizationStrategy = new RoleBasedAccessControlAuthorizationStrategy();
+        AuthorizationStrategy authorizationStrategy = new AclStrategy();
 //        AuthorizationStrategy authorizationStrategy = new NoAuthorization();
 
         String DB_URL = "jdbc:postgresql://localhost:5432/printer_server";
