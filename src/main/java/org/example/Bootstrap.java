@@ -66,7 +66,7 @@ public class Bootstrap {
 
         try {
             this.authorizationStrategy.bootstrapDb(connection);
-            System.out.println("ACL table created successfully");
+            System.out.println("Db Bootstrapped successfully");
         } catch (SQLException e) {
             System.out.println("Failed to create ACL table." + e.getMessage());
             throw new RemoteException("Failed to create ACL table", e);

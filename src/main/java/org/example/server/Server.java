@@ -9,9 +9,7 @@ import org.example.common.RemoteLogin;
 import org.example.common.Session;
 import org.example.common.exceptions.*;
 import org.example.server.authorization.Operation;
-import org.example.server.authorization.AclStrategy;
 import org.example.server.authorization.AuthorizationStrategy;
-import org.example.server.authorization.RoleBasedAccessControlAuthorizationStrategy;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -193,7 +191,7 @@ public class Server implements RemoteLogin {
             System.out.println("Checking logged failed: Session expired for " + session.getUsername());
             throw new LoggedOutException(session.getUsername());
         }
-        if (this.authorization.checkAuthorization(session.getAccess(), operation.toUpperCase())) {
+        if (this.authorization.isNotAuthorised(session.getAccess(), operation.toUpperCase())) {
             System.out.println("Checking logged failed: No permission for " + session.getUsername());
             throw new UnauthorisedException(session.getUsername());
         }

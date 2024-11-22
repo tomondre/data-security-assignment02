@@ -65,7 +65,7 @@ public class AclStrategy implements AuthorizationStrategy {
     }
 
     @Override
-    public boolean checkAuthorization(List<String> access, String operation) {
+    public boolean isNotAuthorised(List<String> access, String operation) {
         return !access.contains(operation);
     }
 }

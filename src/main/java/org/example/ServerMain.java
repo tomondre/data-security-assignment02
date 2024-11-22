@@ -17,9 +17,9 @@ public class ServerMain {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, SQLException {
         boolean bootstrap = true;
 
+        AuthorizationStrategy authorizationStrategy = new NoAuthorization();
 //        AuthorizationStrategy authorizationStrategy = new RoleBasedAccessControlAuthorizationStrategy();
-        AuthorizationStrategy authorizationStrategy = new AclStrategy();
-//        AuthorizationStrategy authorizationStrategy = new NoAuthorization();
+//        AuthorizationStrategy authorizationStrategy = new AclStrategy();
 
         String DB_URL = "jdbc:postgresql://localhost:5432/printer_server";
         String DB_USER = "myuser";

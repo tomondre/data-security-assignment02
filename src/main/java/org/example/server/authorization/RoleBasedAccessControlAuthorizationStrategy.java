@@ -13,10 +13,6 @@ public class RoleBasedAccessControlAuthorizationStrategy implements Authorizatio
     private final Map<String, List<String>> hierarchy = new HashMap<>();     // Parent Role -> Children role
     private final Map<String, String> userRoles = new HashMap<>();           // User -> Role
 
-    public RoleBasedAccessControlAuthorizationStrategy() {
-        // Initialization is now handled via the database
-    }
-
     private void addChildRolesAccess(String role, List<String> accessControlList) {
         for (String childRole : hierarchy.getOrDefault(role, Collections.emptyList())) {
             accessControlList.addAll(rolePolicies.get(childRole));
@@ -158,7 +154,7 @@ public class RoleBasedAccessControlAuthorizationStrategy implements Authorizatio
     }
 
     @Override
-    public boolean checkAuthorization(List<String> access, String operation) {
+    public boolean isNotAuthorised(List<String> access, String operation) {
         return !access.contains(operation);
     }
 }

@@ -20,7 +20,7 @@ public class NoAuthorization implements AuthorizationStrategy {
     }
 
     @Override
-    public boolean checkAuthorization(List<String> access, String operation) {
-        return true;
+    public boolean isNotAuthorised(List<String> access, String operation) {
+        return false;
     }
 }
